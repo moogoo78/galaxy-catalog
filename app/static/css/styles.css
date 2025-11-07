@@ -104,6 +104,27 @@ body {
     font-size: 1.3rem;
 }
 
+.taxonomy-filter {
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    background: white;
+}
+
+#taxonomyFilterInput {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#taxonomyFilterInput:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
 .close-btn {
     background: none;
     border: none;
@@ -133,6 +154,10 @@ body {
 /* Taxonomy Tree Styles */
 .tree-node {
     margin: 5px 0;
+}
+
+.tree-node.hidden-by-filter {
+    display: none;
 }
 
 .tree-node-header {

@@ -210,8 +210,98 @@ function refreshGridLayout() {
   }
 }
 
+// Filter taxonomy tree
+function filterTaxonomyTree(searchTerm) {
+  const treeNodes = document.querySelectorAll('.tree-node');
+  const lowerSearchTerm = searchTerm.toLowerCase().trim();
+
+  if (!lowerSearchTerm) {
+    // Show all nodes when search is empty
+    treeNodes.forEach(node => {
+      node.classList.remove('hidden-by-filter');
+    });
+    return;
+  }
+
+  // First, mark all nodes as hidden
+  treeNodes.forEach(node => {
+    node.classList.add('hidden-by-filter');
+  });
+
+  // Find matching nodes and show them with their ancestors and descendants
+  treeNodes.forEach(node => {
+    const label = node.querySelector('.tree-label');
+    if (label) {
+      const text = label.textContent.toLowerCase();
+
+      // If this node matches the search
+      if (text.includes(lowerSearchTerm)) {
+        // Show this node
+        node.classList.remove('hidden-by-filter');
+
+        // Show all ancestors
+        let parent = node.parentElement;
+        while (parent) {
+          if (parent.classList.contains('tree-node')) {
+            parent.classList.remove('hidden-by-filter');
+          }
+          parent = parent.parentElement;
+        }
+
+        // Show all descendants
+        const descendants = node.querySelectorAll('.tree-node');
+        descendants.forEach(desc => {
+          desc.classList.remove('hidden-by-filter');
+        });
+
+        // Auto-expand matching nodes and their parents
+        const childContainer = node.querySelector('.tree-children');
+        if (childContainer) {
+          childContainer.classList.add('expanded');
+          const toggle = node.querySelector('.tree-toggle');
+          if (toggle) {
+            toggle.textContent = '▼';
+          }
+        }
+
+        // Expand parent containers
+        let parentContainer = node.parentElement;
+        while (parentContainer) {
+          if (parentContainer.classList.contains('tree-children')) {
+            parentContainer.classList.add('expanded');
+            const parentNode = parentContainer.parentElement;
+            if (parentNode) {
+              const toggle = parentNode.querySelector('.tree-toggle');
+              if (toggle) {
+                toggle.textContent = '▼';
+              }
+            }
+          }
+          parentContainer = parentContainer.parentElement;
+        }
+      }
+    }
+  });
+}
+
 // Initialize event listeners
 function initializeEventListeners() {
+    // Taxonomy filter
+    const taxonomyFilterInput = document.getElementById('taxonomyFilterInput');
+    let filterTimeout;
+
+    if (taxonomyFilterInput) {
+      taxonomyFilterInput.addEventListener('input', (e) => {
+        const searchValue = e.target.value;
+
+        // Debounce filter to improve performance
+        clearTimeout(filterTimeout);
+        filterTimeout = setTimeout(() => {
+          filterTaxonomyTree(searchValue);
+        }, 300);
+      });
+    }
+
     // Sidebar toggle
     const toggleSidebarBtn = document.getElementById('toggleSidebar');
     const closeSidebarBtn = document.getElementById('closeSidebar');
