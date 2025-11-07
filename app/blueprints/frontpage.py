@@ -67,6 +67,8 @@ def api_items(library_id):
         else:
             results = get_items(library_id, filtr, limit, offset)
             set_cache(cache_key, results, 86400) # 1 day: 60 * 60 * 24
+    else:
+        results = get_items(library_id, filtr, limit, offset)
 
     data = {
         'items': [],
