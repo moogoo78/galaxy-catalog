@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+#flask migrate
+
+if [ "$WEB_ENV" == "dev" ]; then
+    flask run --host 0.0.0.0
+else
+    gunicorn --bind 0.0.0.0:8001 wsgi:app
+fi

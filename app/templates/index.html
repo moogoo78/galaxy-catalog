@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ current_lib.title }} - Data Explorer</title>
+    <link rel="icon" href="data:,">{# a fake empty favicon #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar with Taxonomy Tree -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Taxonomy</h2>
+                <button class="close-btn" id="closeSidebar">&times;</button>
+            </div>
+            <div class="taxonomy-tree" id="taxonomyTree">
+                <!-- Taxonomy tree will be dynamically generated -->
+                <div class="spinner-container" id="taxonomySpinner">
+                    <div class="spinner small"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="header">
+                <button class="toggle-sidebar-btn" id="toggleSidebar">
+                    <span>&#9776;</span> Browse Taxonomy
+                </button>
+                <h1>{{ current_lib.title }}</h1>
+            </header>
+
+            <!-- Species Detail View -->
+            <div class="species-detail" id="speciesDetail" style="display: none;">
+                <button class="back-btn" id="backBtn">&larr; Back to List</button>
+                <div id="speciesDetailContent"></div>
+            </div>
+
+            <!-- Table View -->
+            <div class="table-view view-container active" id="tableView">
+                <div class="search-filter">
+                    <div id="activeFilter" class="active-filter" style="display: none;">
+                        <span class="filter-label">Filter: <strong id="filterName"></strong></span>
+                        <button class="clear-filter-btn" id="clearFilter">&times;</button>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search species...">
+                    <div class="view-controls">
+                        <button class="view-btn active" data-view="table">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <rect x="2" y="3" width="16" height="2"></rect>
+                                <rect x="2" y="9" width="16" height="2"></rect>
+                                <rect x="2" y="15" width="16" height="2"></rect>
+                            </svg>
+                            Table
+                        </button>
+                        <button class="view-btn" data-view="gallery">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <rect x="2" y="2" width="7" height="7"></rect>
+                                <rect x="11" y="2" width="7" height="7"></rect>
+                                <rect x="2" y="11" width="7" height="7"></rect>
+                                <rect x="11" y="11" width="7" height="7"></rect>
+                            </svg>
+                            Gallery
+                        </button>
+                    </div>
+                    <div class="results-info" id="resultsInfo"></div>
+                </div>
+                <div style="position: relative;">
+                    <div class="loading-overlay hidden" id="gridSpinner">
+                        <div class="spinner"></div>
+                    </div>
+                    <div id="gridTable"></div>
+                </div>
+            </div>
+
+            <!-- Gallery View -->
+            <div class="gallery-view view-container" id="galleryView">
+                <div class="search-filter">
+                    <div id="activeFilterGallery" class="active-filter" style="display: none;">
+                        <span class="filter-label">Filter: <strong id="filterNameGallery"></strong></span>
+                        <button class="clear-filter-btn" id="clearFilterGallery">&times;</button>
+                    </div>
+                    <input type="text" id="searchInputGallery" placeholder="Search species...">
+                    <div class="view-controls">
+                        <button class="view-btn" data-view="table">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <rect x="2" y="3" width="16" height="2"></rect>
+                                <rect x="2" y="9" width="16" height="2"></rect>
+                                <rect x="2" y="15" width="16" height="2"></rect>
+                            </svg>
+                            Table
+                        </button>
+                        <button class="view-btn active" data-view="gallery">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <rect x="2" y="2" width="7" height="7"></rect>
+                                <rect x="11" y="2" width="7" height="7"></rect>
+                                <rect x="2" y="11" width="7" height="7"></rect>
+                                <rect x="11" y="11" width="7" height="7"></rect>
+                            </svg>
+                            Gallery
+                        </button>
+                    </div>
+                    <div class="results-info" id="resultsInfoGallery"></div>
+                </div>
+                <div class="gallery-grid" id="galleryGrid">
+                    <!-- Gallery cards will be dynamically generated -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+    <script src="{{ url_for('static', filename='data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
