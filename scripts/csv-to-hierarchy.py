@@ -139,7 +139,7 @@ def build_hierarchy_recursive(data, ranks):
             is_last_rank = (rank_idx == len(ranks) - 1)
 
             # Get or create node at this level
-            node = get_or_create_node(current_level, rank_value, rank_value_zh, rank['field'], is_last_rank)
+            node = get_or_create_node(current_level, rank_value, rank_value_zh, rank['name'], is_last_rank)
 
             if is_last_rank:
                 # Add the complete record to the last rank

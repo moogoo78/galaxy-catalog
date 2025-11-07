@@ -60,11 +60,18 @@ def api_items(library_id):
     }
 
     for row in results['items']:
+        #TODO
+        name_zh_other = ''
+        status_id = '1'
+        if x := row.source_data.get('Chinese_name_other'):
+            name_zh_other = x
+        if x := row.source_data.get('status_id'):
+            status_id = 1
         data['items'].append({
             'id': row.id,
             'name': row.name,
             'name_zh': row.name_zh,
-            'name_zh_other': row.source_data['Chinese_name_other'],
-            'status_id': row.source_data['status_id'],
+            'name_zh_other': name_zh_other,
+            'status_id': status_id,
         })
     return jsonify(data)

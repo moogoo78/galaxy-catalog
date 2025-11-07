@@ -30,7 +30,7 @@ const STATUS_MAP = {
 
 // Initialize Grid.js
 function initializeGrid(searchQuery = '', collectionId = null) {
-  const baseUrl = '/api/library/1/items';
+  const baseUrl = `/api/library/${LIBRARY_ID}/items`;
 
   // Build URL with query parameters
   const params = new URLSearchParams();
@@ -434,7 +434,7 @@ function updateResultsInfo() {
 function initializeTaxonomyTree() {
   const spinner = document.getElementById('taxonomySpinner');
 
-  fetch('/api/library/1/collections')
+  fetch(`/api/library/${LIBRARY_ID}/collections`)
     .then(resp => resp.json())
     .then(result => {
       console.log(result);
