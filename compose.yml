@@ -46,7 +46,6 @@ services:
       - ./initdb:/docker-entrypoint-initdb.d
       - ../galacat-volumes/bucket:/bucket
     #command: ["postgres", "-c", "log_statement=all"]
-#  redis:
-    #image: redis:7-alpine
-    #
-    #restart: no
+  redis:
+    image: redis:8-alpine
+    restart: no

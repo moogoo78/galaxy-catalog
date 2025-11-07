@@ -12,6 +12,7 @@ from flask import (
 from app.database import session
 from app.helpers.collection import get_collections
 from app.helpers.item import get_items
+from app.helpers.cache import get_cache, set_cache
 from app.models import (
     Library,
 )
@@ -38,8 +39,13 @@ def index():
 
 @bp.route('/api/library/<int:library_id>/collections')
 def api_collections(library_id):
-    #conf = get_config(library_id)
-    data = get_collections(library_id, 2)
+    cache_key = f'lib-{library_id}-collections'
+    if x := get_cache(cache_key):
+        data = x
+    else:
+        data = get_collections(library_id, 2)
+        set_cache(cache_key, data, 86400) # 1 day: 60 * 60 * 24
+
     return jsonify(data)
 
 @bp.route('/api/library/<int:library_id>/items')
@@ -53,7 +59,15 @@ def api_items(library_id):
         filtr['q'] = q
     if collection_id:
         filtr['collection_id'] = collection_id
-    results = get_items(library_id, filtr, limit, offset)
+
+    if len(filtr) == 0:
+        cache_key = f'lib-{library_id}-items'
+        if x := get_cache(cache_key):
+            results = x
+        else:
+            results = get_items(library_id, filtr, limit, offset)
+            set_cache(cache_key, results, 86400) # 1 day: 60 * 60 * 24
+
     data = {
         'items': [],
         'total': results['total'],
