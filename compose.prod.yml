@@ -1,0 +1,56 @@
+services:
+  flask:
+    build:
+      args:
+        PIP_REQUIREMENTS: requirements/prod.txt
+    expose:
+      - 8001
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myapp1.rule=Host(`${PORTAL_HOST}`)"
+      - "traefik.http.routers.myapp1.entrypoints=websecure"
+      - "traefik.http.routers.myapp1.tls.certresolver=myresolver"
+      - "traefik.http.services.flask.loadbalancer.server.port=8001"
+    volumes:
+      - ..galacat-volumes/logs/flask:/app/logs
+
+  postgres:
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - ..galacat-volumes/logs/postgres:/var/log/postgresql
+      #- ./docker/postgresql.conf:/etc/postgresql.conf
+      #command: -c config_file=/etc/postgresql.conf
+  redis:
+    restart: always
+
+  traefik:
+    image: traefik:3.2
+    restart: always
+    command:
+      #- "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.tlsChallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--accesslog.filePath=/logs/access.log"
+      - "--accesslog.bufferingsize=100"
+      - "--accesslog.format=json"
+      - "--accesslog.addinternals"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+      - ../galacat-volumes/logs/traefik:/logs
