@@ -26,8 +26,8 @@ services:
       - ..galacat-volumes/logs/postgres:/var/log/postgresql
       #- ./docker/postgresql.conf:/etc/postgresql.conf
       #command: -c config_file=/etc/postgresql.conf
-  redis:
-    restart: always
+  #redis:
+  #  restart: always
 
   traefik:
     image: traefik:3.2
