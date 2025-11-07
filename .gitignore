@@ -1,4 +1,5 @@
 compose.prod-vhosts-sample.yml
+app/settings/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
