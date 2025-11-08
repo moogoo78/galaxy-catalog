@@ -1,6 +1,0 @@
-services:
-  flask:
-    labels:
-      - "traefik.http.routers.myapp1.rule=Host(`dearlep.naturedb.org`)"
-      - "traefik.http.routers.myapp1.entrypoints=websecure"
-      - "traefik.http.routers.myapp1.tls.certresolver=myresolver"

@@ -1,4 +1,4 @@
-compose.prod-vhosts-sample.yml
+compose.prod-vhosts.yml
 app/settings/*
 
 # Byte-compiled / optimized / DLL files
