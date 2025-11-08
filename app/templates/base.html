@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ library.title }} - Data Explorer</title>
+    <link rel="icon" href="data:,">{# a fake empty favicon #}
+    {% block style %}
+    {% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  </head>
+  <body>
+    {% block main %}
+    {% endblock %}
+    {% block script %}
+    {% endblock %}
+  </body>
+</html>

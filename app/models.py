@@ -1,10 +1,11 @@
-from datetime import datetime
 from typing import (
     Optional,
     Dict,
     Any,
 )
 import uuid
+import json
+from datetime import datetime
 
 from sqlalchemy import (
     Column,
@@ -59,12 +60,22 @@ class ItemTypeField(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     item_type_id: Mapped[int] = mapped_column(ForeignKey('item_type.id'))
     field_id: Mapped[int] = mapped_column(ForeignKey('field.id'))
+    sort: Mapped[Optional[int]] = mapped_column(SmallInteger)
+    control_id: Mapped[Optional[int]] = mapped_column(SmallInteger) # 0: hide, 1: display
+    # sort value
+    # 0-9: taxon, nomenclature
+    # 10-19: description, distribution..
+    # 20-29: annotation
+
+    field: Mapped['Field'] = relationship('Field')
+
 
 class Field(Base):
     __tablename__ = 'field'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(500))
+    label: Mapped[Optional[str]] = mapped_column(String(500))
 
 
 class ItemType(Base):
@@ -72,6 +83,16 @@ class ItemType(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(500))
+
+
+    fields: Mapped[list['Field']] = relationship(
+        'Field',
+        secondary='item_type_field',
+        primaryjoin='ItemType.id == ItemTypeField.item_type_id',
+        viewonly=True,
+        lazy='selectin',
+        order_by='ItemTypeField.sort'
+    )
 
 
 class Item(Base, TimestampMixin, SyncMixin):
@@ -83,6 +104,78 @@ class Item(Base, TimestampMixin, SyncMixin):
     item_type_id: Mapped[int] = mapped_column(ForeignKey('item_type.id'))
     library_id: Mapped[int] = mapped_column(ForeignKey('library.id'))
     source_data: Mapped[Dict[str, Any]] = mapped_column(JSONB)
+
+    item_type: Mapped['ItemType'] = relationship('ItemType')
+
+    # Relationship to collections through CollectionItem
+    collection_items: Mapped[list['CollectionItem']] = relationship(
+        'CollectionItem',
+        back_populates='item',
+        lazy='selectin'
+    )
+
+    # Direct access to collections via the association table
+    collections: Mapped[list['Collection']] = relationship(
+        'Collection',
+        secondary='collection_item',
+        primaryjoin='Item.id == CollectionItem.item_id',
+        secondaryjoin='Collection.id == CollectionItem.collection_id',
+        viewonly=True,
+        lazy='selectin'
+    )
+
+    data_values: Mapped[list['ItemData']] = relationship('ItemData')
+
+    @property
+    def pretty_source_data(self):
+        if x := self.source_data:
+            return json.dumps(x, indent=2)
+
+
+    @property
+    def higher_collections(self):
+        if a := self.collections:
+            cc = CollectionClosure.query.filter(CollectionClosure.descendant_id==a[0].id).order_by(desc(CollectionClosure.depth)).all()
+            return [x.ancestor for x in cc]
+
+    @property
+    def field_data(self):
+        from app.helpers.library import get_config
+        data = []
+        field_values = {}
+
+        for x in self.data_values:
+            field_values[x.field_id] = x.value
+
+        config = get_config(self.library_id)
+
+        # apply values, by item_type (like template)
+        item_type_fields = ItemTypeField.query.filter(ItemTypeField.item_type_id==self.item_type_id).all()
+        #for field in self.item_type.fields: # I need control_id
+        for m in item_type_fields:
+            field = m.field
+
+            value = ''
+            if field.id in field_values:
+                value = field_values[field.id]
+
+            # overwrite by source_data
+            if 'item_source_data_field' in config :
+                for key, field_id in config['item_source_data_field'].items():
+                    if str(field_id) == str(field.id):
+                        if x := self.source_data.get(key):
+                            value = x
+                            break
+
+            data.append({
+                'id': field.id,
+                'name': field.name,
+                'label': field.label,
+                'value': value,
+                'control_id': m.control_id,
+            })
+
+        return data
 
 class ItemData(Base):
     __tablename__ = 'item_data'
@@ -128,6 +221,23 @@ class Collection(Base, SyncMixin):
         viewonly=True,
     )
 
+    # Relationship to items through CollectionItem
+    collection_items: Mapped[list['CollectionItem']] = relationship(
+        'CollectionItem',
+        back_populates='collection',
+        lazy='selectin'
+    )
+
+    # Direct access to items via the association table
+    items: Mapped[list['Item']] = relationship(
+        'Item',
+        secondary='collection_item',
+        primaryjoin='Collection.id == CollectionItem.collection_id',
+        secondaryjoin='Item.id == CollectionItem.item_id',
+        viewonly=True,
+        lazy='selectin'
+    )
+
 class CollectionItem(Base, SyncMixin):
     __tablename__ = 'collection_item'
 
@@ -135,6 +245,16 @@ class CollectionItem(Base, SyncMixin):
     item_id: Mapped[int] = mapped_column(ForeignKey('item.id'))
     collection_id: Mapped[int] = mapped_column(ForeignKey('collection.id'))
     library_id: Mapped[int] = mapped_column(ForeignKey('library.id'))
+
+    # Bidirectional relationships with back_populates
+    collection: Mapped['Collection'] = relationship(
+        'Collection',
+        back_populates='collection_items'
+    )
+    item: Mapped['Item'] = relationship(
+        'Item',
+        back_populates='collection_items'
+    )
 
 
 class CollectionClosure(Base):

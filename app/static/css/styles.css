@@ -624,14 +624,14 @@ body {
 
 .detail-title {
     font-size: 2rem;
-    color: #2c3e50;
+    color: #dbdbdb;/*#2c3e50;*/
     margin-bottom: 8px;
 }
 
 .detail-scientific {
     font-size: 1.3rem;
     font-style: italic;
-    color: #666;
+    color: #dbdbdb;/*#666;*/
 }
 
 .detail-image {

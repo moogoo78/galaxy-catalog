@@ -60,6 +60,11 @@ function initializeGrid(searchQuery = '', collectionId = null) {
   gridInstance = new gridjs.Grid({
     columns: [
       {
+        id: 'index',
+        name: 'identifier',
+        hidden: true,
+      },
+      {
         id: 'scientificName',
         name: 'Scientific Name',
         formatter: (cell) => gridjs.html(`<em>${cell}</em>`)
@@ -96,6 +101,7 @@ function initializeGrid(searchQuery = '', collectionId = null) {
         console.log(data);
         // Transform data for Grid.js
         return data.items.map(item => [
+          item.id,
           item.scientificName || item.name || '',
           item.commonName || item.name_zh || '',
           item.otherCommonName || item.name_zh_other || '',
@@ -117,12 +123,7 @@ function initializeGrid(searchQuery = '', collectionId = null) {
       }
     },
     search: false, // Using custom search inputs instead
-    sort: true, // Client-side sorting enabled
-    // pagination: {
-    //   enabled: true,
-    //   limit: 20,
-    //   summary: true
-    // },
+    sort: false, // Client-side sorting enabled
     pagination: {
       limit: 20,
       server: {
@@ -145,18 +146,9 @@ function initializeGrid(searchQuery = '', collectionId = null) {
   gridInstance.on('rowClick', (...args) => {
     // args[1] is the row event, args[2] is the row data
     const e = args[0];
-    const rowData = args[2];
-
-    // Find the species in allSpeciesData by matching scientific name
-    if (rowData && rowData.cells && rowData.cells[0]) {
-      const scientificName = rowData.cells[0].data;
-      const species = allSpeciesData.items.find(s =>
-        (s.scientificName || s.scientific_name) === scientificName
-      );
-      if (species) {
-        showSpeciesDetail(species);
-      }
-    }
+    const rowData = args[1];
+    const itemId = args[1].cells[0].data;
+    showItemDetail(itemId);
   });
 
   // Update results info after data is loaded
@@ -685,57 +677,59 @@ function renderGalleryView(species) {
     });
 }
 
-// Show species detail
-function showSpeciesDetail(species) {
-    const detailContent = document.getElementById('speciesDetailContent');
-
-    detailContent.innerHTML = `
-        <div class="detail-card">
-            <div class="detail-header">
-                <div class="detail-title">${species.icon} ${species.commonName}</div>
-                <div class="detail-scientific">${species.scientificName}</div>
-            </div>
-
-            <div class="detail-image">${species.icon}</div>
-
-            <div class="detail-section">
-                <h3>Conservation Status</h3>
-                <p><span class="status-badge status-${species.status}">${capitalize(species.status)}</span></p>
-            </div>
-
-            <div class="detail-section">
-                <h3>Description</h3>
-                <p>${species.description}</p>
-            </div>
-
-            <div class="detail-section">
-                <h3>Habitat</h3>
-                <p>${species.habitat}</p>
-            </div>
-
-            <div class="detail-section">
-                <h3>Diet</h3>
-                <p>${species.diet}</p>
-            </div>
-
-            <div class="detail-section">
-                <h3>Taxonomy</h3>
-                <ul class="taxonomy-list">
-                    <li><strong>Kingdom:</strong> ${species.kingdom}</li>
-                    <li><strong>Phylum:</strong> ${species.phylum}</li>
-                    <li><strong>Class:</strong> ${species.class}</li>
-                    <li><strong>Order:</strong> ${species.order}</li>
-                    <li><strong>Family:</strong> ${species.family}</li>
-                    <li><strong>Genus:</strong> ${species.genus}</li>
-                    <li><strong>Species:</strong> ${species.species}</li>
-                </ul>
-            </div>
-        </div>
-    `;
-
-    document.querySelector('.view-container.active').style.display = 'none';
-    document.getElementById('speciesDetail').style.display = 'block';
+function showItemDetail(itemId) {
+  location.href = `/items/${itemId}`;
 }
+// Show species detail
+// function showSpeciesDetail(species) {
+//     const detailContent = document.getElementById('speciesDetailContent');
+//     detailContent.innerHTML = `
+//         <div class="detail-card">
+//             <div class="detail-header">
+//                 <div class="detail-title">${species.icon} ${species.commonName}</div>
+//                 <div class="detail-scientific">${species.scientificName}</div>
+//             </div>
+
+//             <div class="detail-image">${species.icon}</div>
+
+//             <div class="detail-section">
+//                 <h3>Conservation Status</h3>
+//                 <p><span class="status-badge status-common">${capitalize(species.status_id)}</span></p>
+//             </div>
+
+//             <div class="detail-section">
+//                 <h3>Description</h3>
+//                 <p>${species.description}</p>
+//             </div>
+
+//             <div class="detail-section">
+//                 <h3>Habitat</h3>
+//                 <p>${species.habitat}</p>
+//             </div>
+
+//             <div class="detail-section">
+//                 <h3>Diet</h3>
+//                 <p>${species.diet}</p>
+//             </div>
+
+//             <div class="detail-section">
+//                 <h3>Taxonomy</h3>
+//                 <ul class="taxonomy-list">
+//                     <li><strong>Kingdom:</strong> ${species.kingdom}</li>
+//                     <li><strong>Phylum:</strong> ${species.phylum}</li>
+//                     <li><strong>Class:</strong> ${species.class}</li>
+//                     <li><strong>Order:</strong> ${species.order}</li>
+//                     <li><strong>Family:</strong> ${species.family}</li>
+//                     <li><strong>Genus:</strong> ${species.genus}</li>
+//                     <li><strong>Species:</strong> ${species.species}</li>
+//                 </ul>
+//             </div>
+//         </div>
+//     `;
+
+//     document.querySelector('.view-container.active').style.display = 'none';
+//     document.getElementById('speciesDetail').style.display = 'block';
+// }
 
 // Utility function to capitalize first letter
 function capitalize(str) {

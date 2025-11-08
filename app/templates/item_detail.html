@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+
+{% block style %}
+<style>
+  .detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: #f5f5f5;
+    min-height: 100vh;
+  }
+
+  .detail-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 30px;
+  }
+
+  .detail-header {
+    background: linear-gradient(135deg, #0d3d66 0%, #1a1a2e 100%);
+    color: white;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 5px solid #4a90e2;
+  }
+
+  .detail-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .detail-title {
+    font-size: 4rem;
+    margin-bottom: 25px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    text-shadow:
+      2px 2px 8px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(74, 144, 226, 0.3);
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+    color: #ffffff;
+  }
+
+  .detail-scientific {
+    font-size: 2.4rem;
+    font-style: italic;
+    font-weight: 400;
+    margin-bottom: 20px;
+    padding-left: 25px;
+    border-left: 6px solid #4a90e2;
+    text-shadow:
+      1px 1px 4px rgba(0, 0, 0, 0.5),
+      0 0 15px rgba(74, 144, 226, 0.2);
+    position: relative;
+    z-index: 1;
+    color: #e8f4f8;
+  }
+
+  .detail-subtitle {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #b8d4e8;
+    position: relative;
+    z-index: 1;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    color: #2c3e50;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 30px;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .back-btn:hover {
+    background: #2c3e50;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .detail-content {
+    padding: 40px;
+  }
+
+  .detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .image-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .main-image {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 4rem;
+  }
+
+  .main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .thumbnail-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
+
+  .thumbnail {
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+  }
+
+  .thumbnail:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-color: #2c3e50;
+  }
+
+  .info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+  }
+
+  .info-group {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #2c3e50;
+  }
+
+  .info-group h3 {
+    color: #2c3e50;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+
+  .info-item {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+
+  .info-value {
+    color: #333;
+    flex: 1;
+  }
+
+  .taxonomy-path {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .taxonomy-item {
+    background: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: 1px solid #ddd;
+  }
+
+  .taxonomy-arrow {
+    color: #999;
+  }
+
+  .description-section {
+    margin-top: 30px;
+    padding: 25px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #4a90e2;
+  }
+
+  .description-section h3 {
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  .description-text {
+    color: #555;
+    line-height: 1.9;
+    font-size: 1rem;
+  }
+
+  .description-text a {
+    color: #4a90e2;
+    text-decoration: none;
+    border-bottom: 1px solid #4a90e2;
+    transition: all 0.2s;
+  }
+
+  .description-text a:hover {
+    color: #2c3e50;
+    border-bottom-color: #2c3e50;
+  }
+
+  .description-text img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+  }
+
+  .description-text strong {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .status-common {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-threatened {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .status-endangered {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .status-rare {
+    background: #d1ecf1;
+    color: #0c5460;
+  }
+
+  @media (max-width: 768px) {
+    .detail-header {
+      padding: 40px 25px;
+    }
+
+    .detail-title {
+      font-size: 2.8rem;
+      margin-bottom: 18px;
+      font-weight: 900;
+    }
+
+    .detail-scientific {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      padding-left: 20px;
+      border-left-width: 5px;
+    }
+
+    .detail-subtitle {
+      font-size: 1.1rem;
+    }
+
+    .detail-content {
+      padding: 20px;
+    }
+
+    .thumbnail-gallery {
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="detail-container">
+  <a href="{{ url_for('frontpage.index') }}" class="back-btn">
+    <span>&larr;</span> Back to List
+  </a>
+
+  <div class="detail-card">
+    <div class="detail-header">
+      <h1 class="detail-title">{{ item.name_zh or item.name }}</h1>
+      <span class="detail-scientific">{{ item.name }}</span> &nbsp;&nbsp;{{ item.proxy_field_data['scientific_name_authorship']['value'] }}
+      <div class="detail-subtitle">{{ item.proxy_field_data.other_common_name.value }}</div>
+    </div>
+
+    <div class="detail-content">
+      <div class="detail-grid">
+        <!-- Image Section -->
+        <div class="image-section">
+          <div class="main-image" id="mainImage">
+            {% if item.source_data.get('thumbs') %}
+              {% set thumb_list = item.source_data.get('thumbs').split('|') %}
+              {% if thumb_list %}
+                {% set first_thumb = thumb_list[0].split(':') %}
+                <img src="http://nc.biodiv.tw/bbs/attachment.php?attachmentid={{ first_thumb[0] }}" alt="{{ item.name }}">
+              {% endif %}
+            {% else %}
+              <span>🌿</span>
+            {% endif %}
+          </div>
+
+          {% if item.source_data.get('thumbs') %}
+          <div class="thumbnail-gallery">
+            {% set thumb_list = item.source_data.get('thumbs').split('|') %}
+            {% for thumb in thumb_list[:12] %}
+              {% set thumb_parts = thumb.split(':') %}
+              <img
+                src="http://nc.biodiv.tw/bbs/attachment.php?attachmentid={{ thumb_parts[0] }}&stc=1&thumb=1"
+                data-full="http://nc.biodiv.tw/bbs/attachment.php?attachmentid={{ thumb_parts[0] }}"
+                alt="Thumbnail {{ loop.index }}"
+                class="thumbnail"
+                onclick="updateMainImage(this)">
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        <!-- Info Section -->
+        <div class="info-section">
+          <!-- Taxonomy Information -->
+          <div class="info-group">
+            <h3>分類</h3>
+            <div class="taxonomy-path">
+              {% for c in item.higher_collections %}
+              <span class="taxonomy-item">
+                <strong>{{ c.name }}</strong>
+                {% if c.name_zh %}
+                <br>{{ c.name_zh }}
+                {% endif %}
+              </span>
+              <span class="taxonomy-arrow">→</span>
+            {% endfor %}
+              <span class="taxonomy-item">
+                <strong>{{ item.name }}</strong>
+                {% if item.name_zh %}
+                <br>{{ item.name_zh }}
+                {% endif %}
+              </span>
+            </div>
+          </div>
+
+          <!-- Basic Information -->
+          <div class="info-group">
+            <h3>Information</h3>
+            {% for fd in item.proxy_field_data.values() %}
+            {% if fd.control_id == 1 and fd.name != "note" %}
+            <div class="info-item">
+              <span class="info-label">{{ fd.label }}:</span>
+              <span class="info-value">{{ fd.value }}</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+
+          {#
+          {% if item.source_data.get('status_id') %}
+          <div class="info-group">
+            <h3>Conservation Status</h3>
+            <div class="info-item">
+              <span class="info-label">Status:</span>
+              <span class="info-value">
+                <span class="status-badge status-common">Common</span>
+              </span>
+            </div>
+          </div>
+          {% endif %}
+          #}
+        </div>
+      </div>
+
+      <!-- Description Section -->
+      {% if item.proxy_field_data.note and item.proxy_field_data.note.value %}
+      <div class="description-section">
+        <h3>Note</h3>
+        <div class="description-text">
+          {{ item.proxy_field_data.note.value|bbcode|safe }}{# TODO #}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  function updateMainImage(thumbnail) {
+    const mainImage = document.getElementById('mainImage');
+    const fullSrc = thumbnail.getAttribute('data-full');
+    mainImage.innerHTML = `<img src="${fullSrc}" alt="Species image">`;
+
+    // Remove active state from all thumbnails
+    document.querySelectorAll('.thumbnail').forEach(t => {
+      t.style.borderColor = 'transparent';
+    });
+
+    // Add active state to clicked thumbnail
+    thumbnail.style.borderColor = '#2c3e50';
+  }
+</script>
+{% endblock %}

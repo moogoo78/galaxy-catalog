@@ -82,8 +82,63 @@ def apply_blueprints(app):
     #app.register_blueprint(admin_bp, url_prefix='/admin')
     #app.register_blueprint(api_bp, url_prefix='/api/v1')
 
+def bbcode_to_html(text):
+    """Convert BBCode to HTML for display."""
+    if not text:
+        return ''
+
+    # Font size mapping (BBCode size to actual CSS size)
+    def convert_size(match):
+        size = int(match.group(1))
+        # Map BBCode sizes to reasonable CSS sizes
+        size_map = {
+            1: '0.8em',
+            2: '0.9em',
+            3: '1em',
+            4: '1.2em',
+            5: '1.5em',
+            6: '1.8em',
+            7: '2em',
+        }
+        css_size = size_map.get(size, f'{size * 0.2}em')
+        content = match.group(2)
+        return f'<span style="font-size: {css_size}">{content}</span>'
+
+    # Replace BBCode tags with HTML (order matters!)
+    replacements = [
+        # URL with text (must be before plain URL)
+        (re.compile(r'\[URL="?(.*?)"?\](.*?)\[/URL\]', re.IGNORECASE | re.DOTALL), r'<a href="\1" target="_blank">\2</a>'),
+        # URL without text
+        (re.compile(r'\[URL\](.*?)\[/URL\]', re.IGNORECASE | re.DOTALL), r'<a href="\1" target="_blank">\1</a>'),
+        # Bold
+        (re.compile(r'\[B\](.*?)\[/B\]', re.IGNORECASE | re.DOTALL), r'<strong>\1</strong>'),
+        # Italic
+        (re.compile(r'\[I\](.*?)\[/I\]', re.IGNORECASE | re.DOTALL), r'<em>\1</em>'),
+        # Underline
+        (re.compile(r'\[U\](.*?)\[/U\]', re.IGNORECASE | re.DOTALL), r'<u>\1</u>'),
+        # Color (hex and named)
+        (re.compile(r'\[COLOR=(#?[\w]+)\](.*?)\[/COLOR\]', re.IGNORECASE | re.DOTALL), r'<span style="color: \1">\2</span>'),
+        # Images/Attachments
+        (re.compile(r'\[attach\](\d+)\[/attach\]', re.IGNORECASE), r'<img src="http://nc.biodiv.tw/bbs/attachment.php?attachmentid=\1" alt="Attachment \1" style="max-width: 150px; margin: 5px; border-radius: 4px;">'),
+        # Line breaks
+        (re.compile(r'\n'), r'<br>'),
+    ]
+
+    result = text
+
+    # Handle SIZE separately with the mapping function
+    result = re.sub(r'\[SIZE=(\d+)\](.*?)\[/SIZE\]', convert_size, result, flags=re.IGNORECASE | re.DOTALL)
+
+    for pattern, replacement in replacements:
+        result = pattern.sub(replacement, result)
+
+    return result
+
 def apply_extensions(app):
     # flask extensions
+
+    # Register custom Jinja2 filters
+    app.jinja_env.filters['bbcode'] = bbcode_to_html
 
     # babel
     #babel = Babel(app, locale_selector=get_locale)
