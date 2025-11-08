@@ -4,7 +4,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-#flask migrate
+flask migrate
 
 if [ "$WEB_ENV" == "dev" ]; then
     flask run --host 0.0.0.0
