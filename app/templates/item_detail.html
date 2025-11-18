@@ -296,6 +296,32 @@
     color: #0c5460;
   }
 
+  .note-item {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: white;
+    border-radius: 6px;
+    border-left: 3px solid #4a90e2;
+  }
+
+  .note-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .note-title {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .note-content {
+    color: #555;
+    line-height: 1.7;
+    font-size: 1rem;
+    white-space: pre-wrap;
+  }
+
   @media (max-width: 768px) {
     .detail-header {
       padding: 40px 25px;
@@ -416,6 +442,23 @@
         <div class="description-text">
           {{ item.proxy_field_data.source_data.value|bbcode|safe }}{# TODO #}
         </div>
+      </div>
+      {% endif %}
+
+      <!-- Notes Section -->
+      {% if item.notes %}
+      <div class="description-section">
+        <h3>Notes</h3>
+        {% for note in item.notes %}
+        <div class="note-item">
+          {% if note.title %}
+          <h4 class="note-title">{{ note.title }}</h4>
+          {% endif %}
+          <div class="note-content">
+            {{ note.note }}
+          </div>
+        </div>
+        {% endfor %}
       </div>
       {% endif %}
     </div>
