@@ -82,6 +82,7 @@ def apply_blueprints(app):
     #app.register_blueprint(admin_bp, url_prefix='/admin')
     #app.register_blueprint(api_bp, url_prefix='/api/v1')
 
+## nc: specific
 def bbcode_to_html(text):
     """Convert BBCode to HTML for display."""
     if not text:
@@ -118,8 +119,10 @@ def bbcode_to_html(text):
         (re.compile(r'\[U\](.*?)\[/U\]', re.IGNORECASE | re.DOTALL), r'<u>\1</u>'),
         # Color (hex and named)
         (re.compile(r'\[COLOR=(#?[\w]+)\](.*?)\[/COLOR\]', re.IGNORECASE | re.DOTALL), r'<span style="color: \1">\2</span>'),
-        # Images/Attachments
-        (re.compile(r'\[attach\](\d+)\[/attach\]', re.IGNORECASE), r'<img src="http://nc.biodiv.tw/bbs/attachment.php?attachmentid=\1" alt="Attachment \1" style="max-width: 150px; margin: 5px; border-radius: 4px;">'),
+        # Images/Attachments - [IMG] tag with attachment.php URL
+        (re.compile(r'\[IMG\]http://nc\.biodiv\.tw/bbs/attachment\.php\?attachmentid=(\d+)(?:&d=\d+)?\[/IMG\]', re.IGNORECASE), r'<img src="https://f001.backblazeb2.com/file/nc-media/\1.jpg" alt="Attachment \1" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px;">'),
+        # Images/Attachments - [ATTACH] tag
+        (re.compile(r'\[attach\](\d+)\[/attach\]', re.IGNORECASE), r'<img src="https://f001.backblazeb2.com/file/nc-media/\1.jpg" alt="Attachment \1" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px;">'),
         # Line breaks
         (re.compile(r'\n'), r'<br>'),
     ]

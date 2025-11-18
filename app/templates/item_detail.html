@@ -455,7 +455,7 @@
           <h4 class="note-title">{{ note.title }}</h4>
           {% endif %}
           <div class="note-content">
-            {{ note.note }}
+            {{ note.note|bbcode|safe }}
           </div>
         </div>
         {% endfor %}
