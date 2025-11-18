@@ -1,6 +1,8 @@
 from pathlib import Path
 import configparser
 
+from flask import current_app
+
 from app.models import Library
 from app.database import session
 
@@ -24,3 +26,30 @@ def get_library(request):
                 current_lib = lib
 
         return current_lib
+
+
+def get_web_analytics(library_id):
+    """Get web analytics configuration for a library."""
+    config = get_config(library_id)
+    if config and config.has_section('web_analytics'):
+        return {
+            'type': config.get('web_analytics', 'type', fallback=None),
+            'key': config.get('web_analytics', 'key', fallback=None),
+        }
+    return None
+
+
+def get_storage_config(library_id):
+    """Get storage configuration for a library."""
+    config = get_config(library_id)
+    if config and config.has_section('storage'):
+        bucket = config.get('storage', 'bucket', fallback='')
+        url = config.get('storage', 'url', fallback='')
+        prefix = config.get('storage', 'prefix', fallback='')
+        return {
+            'bucket': bucket,
+            'url': url,
+            'prefix': prefix,
+            'full_url': f'{url}{prefix}' if url and prefix else ''
+        }
+    return None

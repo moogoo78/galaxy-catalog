@@ -83,8 +83,13 @@ def apply_blueprints(app):
     #app.register_blueprint(api_bp, url_prefix='/api/v1')
 
 ## nc: specific
-def bbcode_to_html(text):
-    """Convert BBCode to HTML for display."""
+def bbcode_to_html(text, storage_url='https://f001.backblazeb2.com/file/nc-media/'):
+    """Convert BBCode to HTML for display.
+
+    Args:
+        text: BBCode text to convert
+        storage_url: Base URL for media storage (from library config)
+    """
     if not text:
         return ''
 
@@ -120,9 +125,9 @@ def bbcode_to_html(text):
         # Color (hex and named)
         (re.compile(r'\[COLOR=(#?[\w]+)\](.*?)\[/COLOR\]', re.IGNORECASE | re.DOTALL), r'<span style="color: \1">\2</span>'),
         # Images/Attachments - [IMG] tag with attachment.php URL
-        (re.compile(r'\[IMG\]http://nc\.biodiv\.tw/bbs/attachment\.php\?attachmentid=(\d+)(?:&d=\d+)?\[/IMG\]', re.IGNORECASE), r'<img src="https://f001.backblazeb2.com/file/nc-media/\1.jpg" alt="Attachment \1" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px;">'),
+        (re.compile(r'\[IMG\]http://nc\.biodiv\.tw/bbs/attachment\.php\?attachmentid=(\d+)(?:&d=\d+)?\[/IMG\]', re.IGNORECASE), rf'<img src="{storage_url}\1.jpg" alt="Attachment \1" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px;">'),
         # Images/Attachments - [ATTACH] tag
-        (re.compile(r'\[attach\](\d+)\[/attach\]', re.IGNORECASE), r'<img src="https://f001.backblazeb2.com/file/nc-media/\1.jpg" alt="Attachment \1" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px;">'),
+        (re.compile(r'\[attach\](\d+)\[/attach\]', re.IGNORECASE), rf'<img src="{storage_url}\1.jpg" alt="Attachment \1" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px;">'),
         # Line breaks
         (re.compile(r'\n'), r'<br>'),
     ]
@@ -142,6 +147,20 @@ def apply_extensions(app):
 
     # Register custom Jinja2 filters
     app.jinja_env.filters['bbcode'] = bbcode_to_html
+
+    # Context processor for web analytics and storage
+    @app.context_processor
+    def inject_configs():
+        from app.helpers.library import get_library, get_web_analytics, get_storage_config
+        analytics = None
+        storage = None
+        if library := get_library(request):
+            analytics = get_web_analytics(library.id)
+            storage = get_storage_config(library.id)
+        return {
+            'web_analytics': analytics,
+            'storage': storage
+        }
 
     # babel
     #babel = Babel(app, locale_selector=get_locale)

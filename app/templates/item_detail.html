@@ -373,12 +373,12 @@
         <!-- Image Section -->
         <div class="image-section">
           <div class="main-image" id="mainImage">
-            <img src="https://f001.backblazeb2.com/file/nc-media/{{ item.attachments[0].path }}"">
+            {% if item.attachments|length > 0 %}<img src="{{ storage.full_url if storage else 'https://f001.backblazeb2.com/file/nc-media/' }}{{ item.attachments[0].path }}"">{% endif %}
           </div>
 
           <div class="thumbnail-gallery">
             {% for i in item.attachments %}
-            <img src="https://f001.backblazeb2.com/file/nc-media/{{ i.path }}" alt="Thumbnail {{ loop.index }}" class="thumbnail" onclick="updateMainImage(this)" data-full="https://f001.backblazeb2.com/file/nc-media/{{ i.path }}" width="100"/>
+            <img src="{{ storage.full_url if storage else 'https://f001.backblazeb2.com/file/nc-media/' }}{{ i.path }}" alt="Thumbnail {{ loop.index }}" class="thumbnail" onclick="updateMainImage(this)" data-full="{{ storage.full_url if storage else 'https://f001.backblazeb2.com/file/nc-media/' }}{{ i.path }}" width="100"/>
             {% endfor %}
           </div>
         </div>
@@ -440,7 +440,7 @@
       <div class="description-section">
         <h3>原始資料</h3>
         <div class="description-text">
-          {{ item.proxy_field_data.source_data.value|bbcode|safe }}{# TODO #}
+          {{ item.proxy_field_data.source_data.value|bbcode(storage.full_url if storage else 'https://f001.backblazeb2.com/file/nc-media/')|safe }}
         </div>
       </div>
       {% endif %}
@@ -455,7 +455,7 @@
           <h4 class="note-title">{{ note.title }}</h4>
           {% endif %}
           <div class="note-content">
-            {{ note.note|bbcode|safe }}
+            {{ note.note|bbcode(storage.full_url if storage else 'https://f001.backblazeb2.com/file/nc-media/')|safe }}
           </div>
         </div>
         {% endfor %}
