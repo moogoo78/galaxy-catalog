@@ -125,6 +125,8 @@ class Item(Base, TimestampMixin, SyncMixin):
     )
 
     data_values: Mapped[list['ItemData']] = relationship('ItemData')
+    notes: Mapped[list['ItemNote']] = relationship('ItemNote')
+    attachments: Mapped[list['ItemAttachment']] = relationship('ItemAttachment')
 
     @property
     def pretty_source_data(self):
@@ -185,6 +187,37 @@ class ItemData(Base):
     field_id: Mapped[int] = mapped_column(ForeignKey('field.id'))
     value: Mapped[str] = mapped_column(Text)
 
+
+class ItemNote(Base, SyncMixin):
+    __tablename__ = 'item_note'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    item_id: Mapped[int] = mapped_column(ForeignKey('item.id'))
+    parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey('item_note.id'))
+    title: Mapped[str] = mapped_column(String(500))
+    note: Mapped[str] = mapped_column(Text)
+
+    # Self-referential relationship
+    parent_item_note: Mapped[Optional['ItemNote']] = relationship(
+        'ItemNote',
+        remote_side='ItemNote.id',
+        back_populates='child_notes'
+    )
+    child_notes: Mapped[list['ItemNote']] = relationship(
+        'ItemNote',
+        back_populates='parent_item_note'
+    )
+
+
+class ItemAttachment(Base, SyncMixin):
+    __tablename__ = 'item_attachment'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    item_id: Mapped[int] = mapped_column(ForeignKey('item.id'))
+    note_id: Mapped[Optional[int]] = mapped_column(ForeignKey('item_note.id'))
+    mimetype: Mapped[str] = mapped_column(String(500))
+    path: Mapped[str] = mapped_column(String(1000))
+    source_data: Mapped[Dict[str, Any]] = mapped_column(JSONB)
 
 class Library(Base):
     __tablename__ = 'library'

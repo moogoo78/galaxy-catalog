@@ -347,31 +347,14 @@
         <!-- Image Section -->
         <div class="image-section">
           <div class="main-image" id="mainImage">
-            {% if item.source_data.get('thumbs') %}
-              {% set thumb_list = item.source_data.get('thumbs').split('|') %}
-              {% if thumb_list %}
-                {% set first_thumb = thumb_list[0].split(':') %}
-                <img src="http://nc.biodiv.tw/bbs/attachment.php?attachmentid={{ first_thumb[0] }}" alt="{{ item.name }}">
-              {% endif %}
-            {% else %}
-              <span>🌿</span>
-            {% endif %}
+            <img src="https://f001.backblazeb2.com/file/nc-media/{{ item.attachments[0].path }}"">
           </div>
 
-          {% if item.source_data.get('thumbs') %}
           <div class="thumbnail-gallery">
-            {% set thumb_list = item.source_data.get('thumbs').split('|') %}
-            {% for thumb in thumb_list[:12] %}
-              {% set thumb_parts = thumb.split(':') %}
-              <img
-                src="http://nc.biodiv.tw/bbs/attachment.php?attachmentid={{ thumb_parts[0] }}&stc=1&thumb=1"
-                data-full="http://nc.biodiv.tw/bbs/attachment.php?attachmentid={{ thumb_parts[0] }}"
-                alt="Thumbnail {{ loop.index }}"
-                class="thumbnail"
-                onclick="updateMainImage(this)">
+            {% for i in item.attachments %}
+            <img src="https://f001.backblazeb2.com/file/nc-media/{{ i.path }}" alt="Thumbnail {{ loop.index }}" class="thumbnail" onclick="updateMainImage(this)" data-full="https://f001.backblazeb2.com/file/nc-media/{{ i.path }}" width="100"/>
             {% endfor %}
           </div>
-          {% endif %}
         </div>
         <!-- Info Section -->
         <div class="info-section">
@@ -427,11 +410,11 @@
       </div>
 
       <!-- Description Section -->
-      {% if item.proxy_field_data.note and item.proxy_field_data.note.value %}
+      {% if item.proxy_field_data.source_data and item.proxy_field_data.source_data.value %}
       <div class="description-section">
-        <h3>Note</h3>
+        <h3>原始資料</h3>
         <div class="description-text">
-          {{ item.proxy_field_data.note.value|bbcode|safe }}{# TODO #}
+          {{ item.proxy_field_data.source_data.value|bbcode|safe }}{# TODO #}
         </div>
       </div>
       {% endif %}
